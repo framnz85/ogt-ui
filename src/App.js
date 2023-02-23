@@ -8,8 +8,6 @@ import "bootstrap-material-design/dist/css/bootstrap-material-design.min.css";
 
 const Home = lazy(() => import("./pages/Home"));
 const Ogpa = lazy(() => import("./pages/Ogpa"));
-const Ogpa2 = lazy(() => import("./pages/nostore/Ogpa2"));
-const Ogpa3 = lazy(() => import("./pages/sarisari/Ogpa3"));
 const Login = lazy(() => import("./pages/Login"));
 const ThankYou = lazy(() => import("./pages/ThankYou"));
 const OgpaForm = lazy(() => import("./pages/OgpaForm"));
@@ -34,8 +32,6 @@ function App() {
         <Routes>
           <Route exact path="/" element={<Home />} />
           <Route exact path="/ogpa" element={<Ogpa />} />
-          <Route exact path="/ogpa2" element={<Ogpa2 />} />
-          <Route exact path="/ogpa3" element={<Ogpa3 />} />
           <Route exact path="/login" element={<Login />} />
           <Route exact path="/thankyou" element={<ThankYou />} />
           <Route exact path="/ogpaform" element={<OgpaForm />} />

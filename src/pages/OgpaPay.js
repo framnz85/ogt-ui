@@ -64,7 +64,9 @@ const OgpaPay = () => {
         } else {
             setOgpaUser({
                 ...ogpaUser,
-                amount: ogpa.data.amount
+                cashAmount: ogpa.data.cashAmount,
+                installAmount: ogpa.data.installAmount,
+                monthlyPay: ogpa.data.monthlyPay,
             });
             setExtend(ogpa.data.extend);
         }
@@ -82,7 +84,6 @@ const OgpaPay = () => {
     }
 
     const onChange = async (e) => {
-        console.log(e.target.value)
         setOgpaUser({ ...ogpaUser, payment: e.target.value });
         localStorage.setItem("ogpaUser", JSON.stringify({ ...ogpaUser, payment: e.target.value }));
         if (ogpaUser.email) {
@@ -117,9 +118,46 @@ const OgpaPay = () => {
             />}
             <div align="center">
                 <div align="center" style={{ backgroundColor: "#fff", width: isMobile ? "100%" : 1200, marginTop: 20, padding: 30, fontSize: 18, borderRadius: 8 }}>
+                    <h3>Choose if Cash or Installment</h3>
+                    <b style={{color: "red"}}>NOTE: Less 4,000 pesos if you pay in Cash</b><br /><br />
+                    <Radio.Group
+                        defaultValue={ogpaUser.paymentType && ogpaUser.paymentType.toString()}
+                        buttonStyle="solid"
+                        size="large"
+                        onChange={async (e) => {
+                                setOgpaUser({
+                                    ...ogpaUser,
+                                    paymentType: e.target.value,
+                                    finalAmount: e.target.value === "cash" ? ogpaUser.cashAmount : ogpaUser.installAmount,
+                                    monthlyAmount: e.target.value === "cash" ? ogpaUser.cashAmount : ogpaUser.monthlyPay
+                                });
+                                localStorage.setItem("ogpaUser", JSON.stringify({
+                                    ...ogpaUser,
+                                    paymentType: e.target.value,
+                                    finalAmount: e.target.value === "cash" ? ogpaUser.cashAmount : ogpaUser.installAmount,
+                                    monthlyAmount: e.target.value === "cash" ? ogpaUser.cashAmount : ogpaUser.monthlyPay
+                                }));
+                                if (ogpaUser.email) {
+                                    await axios.post(process.env.REACT_APP_API + "/ogpa/new", {
+                                        ...ogpaUser,
+                                        paymentType: e.target.value,
+                                        finalAmount: e.target.value === "cash" ? ogpaUser.cashAmount : ogpaUser.installAmount,
+                                        monthlyAmount: e.target.value === "cash" ? ogpaUser.cashAmount : ogpaUser.monthlyPay
+                                    });
+                                    if (ogpaUser.payment === "pal") {
+                                        window.location.reload();
+                                    }
+                                }
+                            }
+                        }
+                    >
+                        <Radio.Button value="cash">Pay Cash @₱{ogpaUser.cashAmount && ogpaUser.cashAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Radio.Button>
+                        <Radio.Button value="install">Pay Installment @₱{ogpaUser.monthlyPay && ogpaUser.monthlyPay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/mo x 3 Months</Radio.Button>
+                    </Radio.Group>
+                    <br /><br />
                     <h3>Choose Payment Below</h3>
                     <span style={{ color: "#f00", fontSize: 24 }}>
-                        Total Amount: <b>₱{ogpaUser.amount && ogpaUser.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b>
+                        Total Amount to Pay Now: <b>₱{ogpaUser.monthlyAmount && ogpaUser.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b>
                     </span><br /><br />
                     <Radio.Group onChange={onChange} defaultValue={ogpaUser.payment && ogpaUser.payment.toString()}>
                             <Radio.Button value="pal" style={{ height: 80 }}>
@@ -157,7 +195,7 @@ const OgpaPay = () => {
                                             {
                                                 description: "Payment for OGPA Workshop - email: " + ogpaUser.email,
                                                 amount: {
-                                                    value: Number(ogpaUser.amount).toFixed(2)
+                                                    value: Number(ogpaUser.monthlyAmount).toFixed(2)
                                                 }
                                             }
                                         ]
@@ -189,7 +227,7 @@ const OgpaPay = () => {
                             <div align="center">
                                 <b>Account Number:</b> 006760032739<br/>
                                 <b>Account Name:</b> Francis John Clavano<br/>
-                                <b>Amount:</b> ₱{ogpaUser.amount && ogpaUser.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                <b>Amount:</b> ₱{ogpaUser.monthlyAmount && ogpaUser.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </div>
                             <br /><br/>
                                 After sending the payment, send the screenshot of your Payment Receipt together with the email address you registered here <b>{ogpaUser.email}</b> to davgros.85@gmail.com or chat it on my <a href="https://www.facebook.com/francisjohn.clavano" target="_blank" rel="noreferrer">FB Account "Francis Clavano"</a>.
@@ -204,7 +242,7 @@ const OgpaPay = () => {
                             <div align="center">
                                 <b>Account Number:</b> 2149704874<br/>
                                 <b>Account Name:</b> Francis John Clavano<br/>
-                                <b>Amount:</b> ₱{ogpaUser.amount && ogpaUser.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                <b>Amount:</b> ₱{ogpaUser.monthlyAmount && ogpaUser.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </div>
                             <br /><br/>
                                 After sending the payment, send the screenshot of your Payment Receipt together with the email address you registered here <b>{ogpaUser.email}</b> to davgros.85@gmail.com or chat it on my <a href="https://www.facebook.com/francisjohn.clavano" target="_blank" rel="noreferrer">FB Account "Francis Clavano"</a>.
@@ -219,7 +257,7 @@ const OgpaPay = () => {
                             <div align="center">
                                 <b>Account Number:</b> 109430284113<br/>
                                 <b>Account Name:</b> Francis John Clavano<br/>
-                                <b>Amount:</b> ₱{ogpaUser.amount && ogpaUser.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                <b>Amount:</b> ₱{ogpaUser.monthlyAmount && ogpaUser.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </div>
                             <br /><br/>
                                 After sending the payment, send the screenshot of your Payment Receipt together with the email address you registered here <b>{ogpaUser.email}</b> to davgros.85@gmail.com or chat it on my <a href="https://www.facebook.com/francisjohn.clavano" target="_blank" rel="noreferrer">FB Account "Francis Clavano"</a>.
@@ -234,7 +272,7 @@ const OgpaPay = () => {
                             <div align="center">
                                 <b>Account/Mobile Number:</b> 09778557778<br/>
                                 <b>Account Name:</b> Francis John Clavano<br/>
-                                <b>Amount:</b> ₱{ogpaUser.amount && ogpaUser.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                <b>Amount:</b> ₱{ogpaUser.monthlyAmount && ogpaUser.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </div>
                             <br /><br/>
                                 After sending the payment, send the screenshot of your Payment Receipt together with the email address you registered here <b>{ogpaUser.email}</b> to davgros.85@gmail.com or chat it on my <a href="https://www.facebook.com/francisjohn.clavano" target="_blank" rel="noreferrer">FB Account "Francis Clavano"</a>.
@@ -249,7 +287,7 @@ const OgpaPay = () => {
                             <div align="center">
                                 <b>Account/Mobile Number:</b> 09778557778<br/>
                                 <b>Account Name:</b> Francis John Clavano<br/>
-                                <b>Amount:</b> ₱{ogpaUser.amount && ogpaUser.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                <b>Amount:</b> ₱{ogpaUser.monthlyAmount && ogpaUser.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </div>
                             <br /><br/>
                                 After sending the payment, send the screenshot of your Payment Receipt together with the email address you registered here <b>{ogpaUser.email}</b> to davgros.85@gmail.com or chat it on my <a href="https://www.facebook.com/francisjohn.clavano" target="_blank" rel="noreferrer">FB Account "Francis Clavano"</a>.

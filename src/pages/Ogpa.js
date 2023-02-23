@@ -23,7 +23,32 @@ const Ogpa = () => {
     const [bodyStyle, setBodyStyle] = useState({ backgroundImage: `url(${Sarisari})` });
     const [showInitButton, setShowInitButton] = useState(false);
     const [showButton, setShowButton] = useState(false);
-    const [amount, setAmount] = useState(0);
+    const [active, setActive] = useState(true);
+    const [amount, setAmount] = useState({
+        cashAmount: 0,
+        installAmount: 0,
+        monthlyPay: 0,
+    });
+    const [schedules, setSchedules] = useState({
+        registerEnd: "",
+        dateStart1: "",
+        dateEnd1: "",
+        dateStart2: "",
+        dateEnd2: "",
+        dateStart3: "",
+        dateEnd3: "",
+        websiteDate1: "",
+        websiteDate2: "",
+        websiteDate5: "",
+        websiteDate6: "",
+        websiteDate7: "",
+        workshopDate1: "",
+        workshopDate2: "",
+        workshopDate3: "",
+        workshopDate4: "",
+        workshopDate5: "",
+        workshopDate6: "",
+    });
     const [extend, setExtend] = useState(0);
     const [mcid, setMcid] = useState(0);
     const [timer, setTimer] = useState({
@@ -73,8 +98,35 @@ const Ogpa = () => {
         if (ogpa.data.err) {
             toast.error(ogpa.data.err);
         } else {
-            setAmount(ogpa.data.amount);
-            setExtend(ogpa.data.extend)
+            setActive(ogpa.data.active);
+            setAmount({
+                ...amount,
+                cashAmount: ogpa.data.cashAmount,
+                installAmount: ogpa.data.installAmount,
+                monthlyPay: ogpa.data.monthlyPay,
+            });
+            setExtend(ogpa.data.extend);
+            setSchedules({
+                ...schedules,
+                registerEnd: new Date(addDaysToDate(ogpa.data.dateStart, -1)),
+                dateStart1: ogpa.data.dateStart,
+                dateEnd1: new Date(addDaysToDate(ogpa.data.dateStart, 12)),
+                dateStart2: new Date(addDaysToDate(ogpa.data.dateStart, 14)),
+                dateEnd2: new Date(addDaysToDate(ogpa.data.dateStart, 54)),
+                dateStart3: new Date(addDaysToDate(ogpa.data.dateStart, 56)),
+                dateEnd3: new Date(addDaysToDate(ogpa.data.dateStart, 82)),
+                websiteDate1: ogpa.data.dateStart,
+                websiteDate2: new Date(addDaysToDate(ogpa.data.dateStart, 1)),
+                websiteDate5: new Date(addDaysToDate(ogpa.data.dateStart, 4)),
+                websiteDate6: new Date(addDaysToDate(ogpa.data.dateStart, 5)),
+                websiteDate7: new Date(addDaysToDate(ogpa.data.dateStart, 6)),
+                workshopDate1: new Date(addDaysToDate(ogpa.data.dateStart, 7)),
+                workshopDate2: new Date(addDaysToDate(ogpa.data.dateStart, 8)),
+                workshopDate3: new Date(addDaysToDate(ogpa.data.dateStart, 9)),
+                workshopDate4: new Date(addDaysToDate(ogpa.data.dateStart, 10)),
+                workshopDate5: new Date(addDaysToDate(ogpa.data.dateStart, 11)),
+                workshopDate6: new Date(addDaysToDate(ogpa.data.dateStart, 12)),
+            });
         }
     }
 
@@ -89,9 +141,14 @@ const Ogpa = () => {
         }
     }
 
+    const addDaysToDate = (dateToAdd, numDays) => {
+        var date = new Date(dateToAdd);
+        return date.setDate(date.getDate() + numDays);
+    }
+
     return (
         <div style={bodyStyle}>
-            {extend > 0 && <TimerHeader
+            {extend > 0 && active && <TimerHeader
                 title="Watch the video below before this time ends..."
                 timer={timer}
                 setTimer={setTimer}
@@ -99,7 +156,7 @@ const Ogpa = () => {
                 setSpotTaken={setSpotTaken}
                 setSpotLeft={setSpotLeft}
             />}
-            {extend === 0 && <TimerHeader
+            {extend === 0 && active && <TimerHeader
                 title="Watch the video below before this time ends..."
                 timer={timer}
                 setTimer={setTimer}
@@ -108,7 +165,7 @@ const Ogpa = () => {
                 setSpotLeft={setSpotLeft}
             />}
             <div align="center" style={{padding: isMobile ? "10px" : "20px"}}>
-                <div style={{ backgroundColor: "#fff", width: isMobile ? "100%" : 1200, padding: isMobile ? "20px" : "40px", borderRadius: 8 }}>     
+                {active && <div style={{ backgroundColor: "#fff", width: isMobile ? "100%" : 1200, padding: isMobile ? "20px" : "40px", borderRadius: 8 }}>     
                     <h4 style={{color: "red"}}>Carefully Watch The Video First Below</h4>
                     <div align="center" style={{ padding: 20 }}>
                         <div style={{ width: isMobile ? "100%" : 860, height: isMobile ? "100%" : 485, backgroundColor: "#666" }}>
@@ -126,7 +183,11 @@ const Ogpa = () => {
                             <TimerContent title="Registration will End in..." timer={timer} />
                             <img src={PaymentOpt} alt="Payment Option" /><br/><br/>
                             <div>
-                                Only <b style={{ fontSize: 24, color: "red" }}>₱{amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b> <b style={{ fontSize: 18, textDecoration: "line-through" }}>₱12,990</b>
+                                <span style={{ fontSize: 24, color: "darkgreen" }}>One Time Payment: <b>₱{amount.cashAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b></span><br/>
+                                <span style={{ fontSize: 24, color: "darkred" }}>
+                                    3 Months Installment (@ ₱{amount.installAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}):<br />
+                                    <b>₱{amount.monthlyPay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b>/mo For 3 Months
+                                </span>
                             </div><br/>
                             <button
                                 type="button"
@@ -146,6 +207,7 @@ const Ogpa = () => {
                             spotTaken={spotTaken}
                             spotLeft={spotLeft}
                             showInitButton={showInitButton}
+                            schedules={schedules}
                         />
                     </div>
                     {showButton && <div align="center">
@@ -153,7 +215,11 @@ const Ogpa = () => {
                             <TimerContent title="Registration will End in..." timer={timer} />
                             <img src={PaymentOpt} alt="Payment Option" /><br/><br/>
                             <div>
-                                Only <b style={{ fontSize: 24, color: "red" }}>₱{amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b> <b style={{ fontSize: 18, textDecoration: "line-through" }}>₱12,990</b>
+                                <span style={{ fontSize: 24, color: "darkgreen" }}>One Time Payment: <b>₱{amount.cashAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b></span><br/>
+                                <span style={{ fontSize: 24, color: "darkred" }}>
+                                    3 Months Installment (@ ₱{amount.installAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}):<br />
+                                    <b>₱{amount.monthlyPay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</b>/mo For 3 Months
+                                </span>
                             </div><br/>
                             <button
                                 type="button"
@@ -167,7 +233,7 @@ const Ogpa = () => {
                         </div>
                         <br /><br />
                     </div>}
-                </div>
+                </div>}
             </div>
         </div>
     );

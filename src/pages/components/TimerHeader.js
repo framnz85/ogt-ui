@@ -40,35 +40,54 @@ const TimerHeader = ({ title, timer, setTimer, extend, setSpotTaken, setSpotLeft
     }
 
     const getEndDay = () => {
+        let date_1 = new Date('3/6/2023');
+        let date_2 = new Date();
+        let difference = (date_1.getTime() - date_2.getTime())/(24*60*60*1000);
+
         if (extend > 0) {
             return parseInt(extend);
-        } else {
+        } else if (difference > 0 && difference < 7) {
             return 7;
+        } else {
+            return 14;
         }
     }
 
-    const getWeekNumber = () => {
+    const getWeekNumber = (endDay) => {
         const currentDate = new Date();
         const adjustedDate = currentDate.getDate()+ currentDate.getDay();
         const prefixes = ['0', '1', '2', '3', '4', '5'];
         const weekNumber = parseInt(prefixes[0 | adjustedDate / 7])+1;
-        const spotTaken = [
+        const spotTaken1 = [
             [0, 0, 0, 0, 0, 0, 0],
-            [17, 3, 5, 7, 11, 14, 16],
-            [16, 1, 5, 8, 10, 13, 14],
-            [18, 2, 5, 10, 12, 14, 15],
-            [17, 2, 4, 9, 11, 15, 16],
-            [18, 3, 6, 9, 13, 15, 17]
+            [9, 1, 2, 3, 4, 8, 8],
+            [10, 2, 3, 4, 4, 7, 9],
+            [10, 1, 2, 4, 5, 8, 9],
+            [9, 1, 2, 3, 5, 7, 8],
+            [10, 2, 3, 4, 4, 7, 9]
+        ];
+        const spotTaken2 = [
+            [0, 0, 0, 0, 0, 0, 0],
+            [17, 10, 11, 12, 13, 14, 15],
+            [18, 11, 12, 12, 14, 15, 16],
+            [18, 10, 11, 13, 14, 15, 16],
+            [17, 11, 11, 13, 13, 14, 16],
+            [18, 11, 12, 13, 14, 15, 15]
         ];
         // console.log(weekNumber, currentDate.getDay());
-        setSpotTaken(spotTaken[weekNumber][currentDate.getDay()]);
-        setSpotLeft(20 - spotTaken[weekNumber][currentDate.getDay()])
+        if (endDay === 14) {
+            setSpotTaken(spotTaken1[weekNumber][currentDate.getDay()]);
+            setSpotLeft(20 - spotTaken1[weekNumber][currentDate.getDay()])
+        } else {
+            setSpotTaken(spotTaken2[weekNumber][currentDate.getDay()]);
+            setSpotLeft(20 - spotTaken2[weekNumber][currentDate.getDay()])
+        }
     }
 
     useEffect(() => {
         const endDay = getEndDay();
         clearTimer(getDeadTime(endDay));
-        getWeekNumber();
+        getWeekNumber(endDay);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const timerBody = {

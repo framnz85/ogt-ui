@@ -9,13 +9,15 @@ import TimerHeader from './components/TimerHeader';
 import Sarisari from "../images/sarisari.jpg";
 
 const initialState = {
-    amount: 0,
     name: "",
     email: "",
     password: "",
     repassword: "",
     mobile: "",
-    payment: ""
+    paymentType: "",
+    payment: "",
+    finalAmount: 0,
+    monthlyAmount: 0
 }
 
 const OgpaReg = () => {
@@ -115,18 +117,24 @@ const OgpaReg = () => {
                                     </div>
                                     <div className="af-clear"></div>
                                 </div>
-                                <div class="af-element">
-                                    <label class="previewLabel" for="awf_field-114795185">Password</label>
-                                    <div class="af-textWrap">
-                                        <input type="text" id="awf_field-114795185" class="text" name="custom password" value={values.password} onChange={() => ""} tabindex="502" />
+                                <div className="af-element">
+                                    <label className="previewLabel" htmlFor="awf_field-114795185">Password</label>
+                                    <div className="af-textWrap">
+                                        <input type="text" id="awf_field-114795185" className="text" name="custom password" value={values.password} onChange={() => ""} tabIndex="502" />
                                     </div>
-                                    <div class="af-clear"></div>
+                                    <div className="af-clear"></div>
                                 </div>
                                 <div className="af-element">
                                     <label className="previewLabel" htmlFor="awf_field-114708943">Amount:</label>
                                     <div className="af-textWrap">
-                                        <input type="text" id="awf_field-114708943" className="text" name="custom amount" value={values.amount} onChange={() => ""} tabIndex="503" readOnly />
+                                        <input type="text" id="awf_field-114708943" className="text" name="custom amount" value={values.monthlyAmount} onChange={() => ""} tabIndex="503" readOnly />
                                     </div>
+                                    <div className="af-clear"></div>
+                                </div>
+                                <div className="af-element">
+                                    <label className="previewLabel" htmlFor="awf_field-115415439">Cash or Installment:</label>
+                                    <div className="af-textWrap">
+                                        <input type="text" id="awf_field-115415439" className="text" name="custom Cash or Installment" value={values.paymentType} onChange={() => ""} tabIndex="504" /></div>
                                     <div className="af-clear"></div>
                                 </div>
                                 <div className="af-element">

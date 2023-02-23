@@ -13,7 +13,6 @@ import { useNavigate  } from "react-router-dom";
 import axios from 'axios';
 import Joi from "joi-browser";
 import { isMobile } from 'react-device-detect';
-import NumberFormat from "react-number-format";
 
 import TimerHeader from './components/TimerHeader';
 
@@ -31,13 +30,20 @@ const OgpaForm = () => {
     const queryParams = new URLSearchParams(window.location.search);
 
     const initialState = {
-        amount: 0,
-        name: "",
-        email: "",
-        password: "",
-        repassword: "",
-        mobile: "",
-        payment: ""
+        amount: {
+            cashAmount: 0,
+            installAmount: 0,
+            monthlyPay: 0,
+        },
+        name: "Francis John Clavano",
+        email: "davgros.85@gmail.com",
+        password: "Ejccoc@1204",
+        repassword: "Ejccoc@1204",
+        mobile: "09778557778",
+        paymentType: "cash",
+        payment: "",
+        finalAmount: 0,
+        monthlyAmount: 0
     }
 
     const [bodyStyle, setBodyStyle] = useState({ backgroundImage: `url(${Sarisari})` });
@@ -76,7 +82,13 @@ const OgpaForm = () => {
         } else {
             setValues({
                 ...values,
-                amount: ogpa.data.amount
+                amount: {
+                    cashAmount: ogpa.data.cashAmount,
+                    installAmount: ogpa.data.installAmount,
+                    monthlyPay: ogpa.data.monthlyPay
+                },
+                finalAmount: ogpa.data.cashAmount,
+                monthlyAmount: ogpa.data.cashAmount
             });
             setExtend(ogpa.data.extend)
         }
@@ -85,14 +97,16 @@ const OgpaForm = () => {
     const schema = {
         name: Joi.string().required(),
         email: Joi.string().email({ tlds: { allow: false } }).required(),
-        amount: Joi.number().required(),
         password: Joi.string().min(6).max(32).required(),
+        paymentType: Joi.string().required(),
         payment: Joi.string().required().error(() => {
             return {
                 message: 'You need to Choose a Payment first',
                 };
             }
-        )
+        ),
+        finalAmount: Joi.number().required(),
+        monthlyAmount: Joi.number().required()
     };
 
     const handleSubmit = async () => {
@@ -103,6 +117,7 @@ const OgpaForm = () => {
             
         delete forSubmit.repassword;
         delete forSubmit.mobile;
+        delete forSubmit.amount;
 
         const validate = Joi.validate(forSubmit, schema, {
             abortEarly: false,
@@ -114,6 +129,7 @@ const OgpaForm = () => {
         }
 
         delete values.repassword;
+        delete values.amount;
 
         const newOgpa = await axios.post(process.env.REACT_APP_API + "/ogpa/new", {...values, refid});
 
@@ -178,7 +194,7 @@ const OgpaForm = () => {
                                 size="large"
                                 placeholder="Amount"
                                 prefix={<WalletOutlined />}
-                                value={`₱${values.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`}
+                                value={`₱${values.monthlyAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`}
                                 disabled
                             />
                             <Input.Password
@@ -204,6 +220,23 @@ const OgpaForm = () => {
                             />
                             <br/>
                         </Space>
+                        <h5>Choose if Cash or Installment</h5>
+                        <b style={{color: "red"}}>NOTE: Less 4,000 pesos if you pay in Cash</b><br /><br />
+                        <Radio.Group
+                            defaultValue="cash"
+                            buttonStyle="solid"
+                            size="large"
+                            onChange={(e) => setValues({
+                                ...values,
+                                paymentType: e.target.value,
+                                finalAmount: e.target.value === "cash" ? values.amount.cashAmount : values.amount.installAmount,
+                                monthlyAmount: e.target.value === "cash" ? values.amount.cashAmount : values.amount.monthlyPay
+                            })}
+                        >
+                            <Radio.Button value="cash">Pay Cash @₱{values.amount.cashAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Radio.Button>
+                            <Radio.Button value="install">Pay Installment @₱{values.amount.monthlyPay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/mo x 3 Months</Radio.Button>
+                        </Radio.Group>
+                        <br /><br />
                         <h5>Choose a Payment Below</h5>
                         <Radio.Group onChange={onChange} defaultValue={values.payment}>
                             <Radio.Button value="pal" style={{ height: 80 }}>
@@ -237,14 +270,7 @@ const OgpaForm = () => {
                             className="btn-primary btn-lg"
                             style={{ fontSize: isMobile ? "18px" : "30px", padding: isMobile ? "15px 40px" : "15px 80px", margin: 30 }}
                         >
-                            Pay{" "}
-                            <NumberFormat
-                                value={Number(values.amount).toFixed(0)}
-                                displayType={"text"}
-                                thousandSeparator={true}
-                                prefix={`₱`}
-                                style={{margin: 0}}
-                            />{" "}NOW{" "}
+                            Proceed To Pay
                             <RightCircleOutlined />
                         </button>
                     </Form>
