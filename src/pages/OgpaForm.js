@@ -35,11 +35,11 @@ const OgpaForm = () => {
             installAmount: 0,
             monthlyPay: 0,
         },
-        name: "Francis John Clavano",
-        email: "davgros.85@gmail.com",
-        password: "Ejccoc@1204",
-        repassword: "Ejccoc@1204",
-        mobile: "09778557778",
+        name: "",
+        email: "",
+        password: "",
+        repassword: "",
+        mobile: "",
         paymentType: "cash",
         payment: "",
         finalAmount: 0,
@@ -233,8 +233,8 @@ const OgpaForm = () => {
                                 monthlyAmount: e.target.value === "cash" ? values.amount.cashAmount : values.amount.monthlyPay
                             })}
                         >
-                            <Radio.Button value="cash">Pay Cash @₱{values.amount.cashAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Radio.Button>
-                            <Radio.Button value="install">Pay Installment @₱{values.amount.monthlyPay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/mo x 3 Months</Radio.Button>
+                            <Radio.Button value="cash">Pay Cash @₱{values.amount && values.amount.cashAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Radio.Button>
+                            <Radio.Button value="install">Pay Installment @₱{values.amount && values.amount.monthlyPay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/mo x 3 Months</Radio.Button>
                         </Radio.Group>
                         <br /><br />
                         <h5>Choose a Payment Below</h5>
